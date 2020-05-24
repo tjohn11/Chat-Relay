@@ -1,0 +1,28 @@
+{
+  "name": "chat-relay",
+  "version": "1.0.0",
+  "description": "A simple chat room application using expressjs and socket-io.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index",
+    "dev": "nodemon index"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/t-john93/Chat-Relay.git"
+  },
+  "author": "Trevor Johnson",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/t-john93/Chat-Relay/issues"
+  },
+  "homepage": "https://github.com/t-john93/Chat-Relay#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "moment": "^2.26.0",
+    "socket.io": "^2.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.4"
+  }
+}
