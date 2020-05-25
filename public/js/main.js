@@ -2,7 +2,7 @@ const socket = io();
 const chatForm = document.getElementById('chat-form');
 
 socket.on('message', message => {
-    console.log(message);
+    // console.log(message);
     displayMessage(message);
 });
 
@@ -17,14 +17,16 @@ chatForm.addEventListener('submit', submit => {
 const displayMessage = message => {
     const div = document.createElement('div');
     div.classList.add('message');
+    console.log(message);
     div.innerHTML =
         `
             <p class="meta">
+                ${message.user}
+                <span>${message.time}</span>
                 <p class="text">
-                ${message}
+                ${message.text}
                 </p>
             </p>
         `;
     document.getElementById('chat-messages').appendChild(div);
-    // console.log(document.getElementById('chat-messages'));
 };
