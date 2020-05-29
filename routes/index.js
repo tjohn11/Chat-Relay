@@ -22,7 +22,7 @@ module.exports = app => {
         try{
             const existingUser = await User.findById(req.params.userId);
             res.json(existingUser);
-        } catch {
+        } catch(err) {
             res.json({ error: `current user error '${err}'` });
         }
     })

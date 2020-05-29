@@ -1,7 +1,6 @@
 const moment = require('moment');
 
-const formatMessage = (user, text) => {
-    console.log(user, text);
+const format = (user, text) => {
     return {
         user,
         text,
@@ -9,4 +8,4 @@ const formatMessage = (user, text) => {
     }
 };
 
-module.exports = formatMessage;
+module.exports = format;

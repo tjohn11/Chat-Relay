@@ -1,8 +1,20 @@
 const socket = io();
 const chatForm = document.getElementById('chat-form');
+const chatMessages = document.querySelector('.chat-messages');
+const userList = document.getElementById('users');
+
+const { username, room } = Qs.parse(location.search, {
+    ignoreQueryPrefix: true
+});
+
+socket.emit('joinRoom', { username, room});
+
+socket.on('roomUsers', ({ room, users }) => {
+    displayRoom(room);
+    displayUsers(users);
+});
 
 socket.on('message', message => {
-    // console.log(message);
     displayMessage(message);
 });
 
@@ -17,7 +29,6 @@ chatForm.addEventListener('submit', submit => {
 const displayMessage = message => {
     const div = document.createElement('div');
     div.classList.add('message');
-    console.log(message);
     div.innerHTML =
         `
             <p class="meta">
@@ -29,4 +40,15 @@ const displayMessage = message => {
             </p>
         `;
     document.getElementById('chat-messages').appendChild(div);
+};
+
+const displayRoom = room => {
+    const roomName = document.getElementById('room-name');
+    roomName.innerText = room;
+};
+
+const displayUsers = users => {
+    userList.innerHTML = `
+        ${users.map(user => `<li>${user.username}</li>`).join('')}
+    `;
 };
