@@ -17,7 +17,7 @@ const roomModel = require('./models/rooms');
 const app = express();
 app.use(bodyParser.json());
 // const routes = require('./routes/index')(app);
-app.use(express.static(path.joinRoom(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public')));
 
 mongoose.connect(
     process.env.DB_CONNECT,
