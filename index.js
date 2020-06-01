@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const socketIO = require('socket.io');
 const format = require('./utils/messages');
 const {
@@ -10,31 +9,66 @@ const {
 } = require('./utils/users');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const routes = require('./routes/index');
+const userRoutes = require('./routes/users');
 require('dotenv/config');
 const userModel = require('./models/users');
 const roomModel = require('./models/rooms');
+const expressLayouts = require('express-ejs-layouts');
+const flash = require('connect-flash');
+const session = require('express-session');
+const passport = require('passport')
 
 const app = express();
-app.use(bodyParser.json());
-// const routes = require('./routes/index')(app);
-app.use(express.static(path.join(__dirname, 'public')));
+require('./config/passport')(passport);
 
+app.use(express.urlencoded({ extended: false }));
+app.use(expressLayouts);
+app.set('view engine', 'ejs');
 mongoose.connect(
     process.env.DB_CONNECT,
     { useNewUrlParser: true },
-    () => console.log('connected to db')
+    () => console.log('Connected to MongoDB..')
+)
+.then()
+.catch(err => {
+    console.log(err);
+});
+app.use(
+    session({
+      secret: 'skippydiddydoop',
+      resave: true,
+      saveUninitialized: true
+    })
 );
+app.use(passport.initialize());
+app.use(passport.session())
+app.use(flash());
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
+    next();
+});
+app.use('/', routes);
+app.use('/users', userRoutes);
 
 const admin = "T-bot";
 
 const port = 5000 || process.env.PORT;
 const server = app.listen(port);
-const io = socketIO(server);
 
+
+//WS code...
+const io = socketIO(server);
 io.on('connection', socket => {
+
+    socket.on('roomList', ({ room }) => {
+        socket.emit('roomList', roomList);
+    });
+
     socket.on('joinRoom', ({ username, room }) => {
         const newUser = joinRoom(socket.id, username, room);
-
 
         socket.joinRoom(newUser.room);
 
