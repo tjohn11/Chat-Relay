@@ -10,14 +10,21 @@ const {
 } = require('./utils/users');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+const routes = require('./routes/index');
+const userRoutes = require('./routes/users');
 require('dotenv/config');
 const userModel = require('./models/users');
 const roomModel = require('./models/rooms');
+const expressLayouts = require('express-ejs-layouts');
 
 const app = express();
 app.use(bodyParser.json());
-// const routes = require('./routes/index')(app);
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(expressLayouts);
+app.set('view engine', 'ejs');
+
+app.use('/', routes);
+app.use('/users', userRoutes);
+// app.use(express.static(path.join(__dirname, 'public')));
 
 mongoose.connect(
     process.env.DB_CONNECT,
@@ -31,10 +38,15 @@ const port = 5000 || process.env.PORT;
 const server = app.listen(port);
 const io = socketIO(server);
 
+
 io.on('connection', socket => {
+
+    socket.on('roomList', ({ room }) => {
+        socket.emit('roomList', roomList);
+    });
+
     socket.on('joinRoom', ({ username, room }) => {
         const newUser = joinRoom(socket.id, username, room);
-
 
         socket.joinRoom(newUser.room);
 

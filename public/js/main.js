@@ -9,6 +9,10 @@ const { username, room } = Qs.parse(location.search, {
 
 socket.emit('joinRoom', { username, room});
 
+socket.on('roomList', roomList => {
+    console.log(roomList);
+});
+
 socket.on('roomUsers', ({ room, users }) => {
     displayRoom(room);
     displayUsers(users);
