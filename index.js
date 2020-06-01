@@ -1,5 +1,4 @@
 const express = require('express');
-const path = require('path');
 const socketIO = require('socket.io');
 const format = require('./utils/messages');
 const {
@@ -16,21 +15,39 @@ require('dotenv/config');
 const userModel = require('./models/users');
 const roomModel = require('./models/rooms');
 const expressLayouts = require('express-ejs-layouts');
+const flash = require('connect-flash');
+const session = require('express-session');
 
 const app = express();
-app.use(bodyParser.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(expressLayouts);
 app.set('view engine', 'ejs');
-
+app.use(
+    session({
+      secret: 'skippydiddydoop',
+      resave: true,
+      saveUninitialized: true
+    })
+);
+app.use(flash());
+app.use(function(req, res, next) {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
+    next();
+  });
 app.use('/', routes);
 app.use('/users', userRoutes);
-// app.use(express.static(path.join(__dirname, 'public')));
 
 mongoose.connect(
     process.env.DB_CONNECT,
     { useNewUrlParser: true },
-    () => console.log('connected to db')
-);
+    () => console.log('Connected to MongoDB..')
+)
+.then()
+.catch(err => {
+    console.log(err);
+});
 
 const admin = "T-bot";
 
@@ -39,6 +56,9 @@ const server = app.listen(port);
 const io = socketIO(server);
 
 
+
+
+//WS code...
 io.on('connection', socket => {
 
     socket.on('roomList', ({ room }) => {

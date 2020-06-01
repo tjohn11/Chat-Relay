@@ -1,5 +1,6 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
+const moment = require('moment');
 
 const roomSchema = new Schema({
   roomname: {
@@ -9,7 +10,12 @@ const roomSchema = new Schema({
   roomid: {
       type: String,
       required: true
+  },
+  date: {
+    type: Date,
+    default: moment(),
+    required: true
   }
 });
 
-module.exports = mongoose.model("rooms", roomSchema);
+module.exports = mongoose.model('rooms', roomSchema);
