@@ -17,28 +17,14 @@ const roomModel = require('./models/rooms');
 const expressLayouts = require('express-ejs-layouts');
 const flash = require('connect-flash');
 const session = require('express-session');
+const passport = require('passport')
 
 const app = express();
+require('./config/passport')(passport);
+
 app.use(express.urlencoded({ extended: false }));
 app.use(expressLayouts);
 app.set('view engine', 'ejs');
-app.use(
-    session({
-      secret: 'skippydiddydoop',
-      resave: true,
-      saveUninitialized: true
-    })
-);
-app.use(flash());
-app.use(function(req, res, next) {
-    res.locals.success_msg = req.flash('success_msg');
-    res.locals.error_msg = req.flash('error_msg');
-    res.locals.error = req.flash('error');
-    next();
-  });
-app.use('/', routes);
-app.use('/users', userRoutes);
-
 mongoose.connect(
     process.env.DB_CONNECT,
     { useNewUrlParser: true },
@@ -48,17 +34,33 @@ mongoose.connect(
 .catch(err => {
     console.log(err);
 });
+app.use(
+    session({
+      secret: 'skippydiddydoop',
+      resave: true,
+      saveUninitialized: true
+    })
+);
+app.use(passport.initialize());
+app.use(passport.session())
+app.use(flash());
+app.use((req, res, next) => {
+    res.locals.success_msg = req.flash('success_msg');
+    res.locals.error_msg = req.flash('error_msg');
+    res.locals.error = req.flash('error');
+    next();
+});
+app.use('/', routes);
+app.use('/users', userRoutes);
 
 const admin = "T-bot";
 
 const port = 5000 || process.env.PORT;
 const server = app.listen(port);
-const io = socketIO(server);
-
-
 
 
 //WS code...
+const io = socketIO(server);
 io.on('connection', socket => {
 
     socket.on('roomList', ({ room }) => {
