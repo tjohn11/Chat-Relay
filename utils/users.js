@@ -1,7 +1,8 @@
 let users = [];
 
 const getCurrentUser = userID =>  {
-    return users.filter(user => user.id === userID);
+    const currentUser = users.find(user => user.id === userID);
+    return currentUser;
 };
 
 const currentRoomUsers = room => {

@@ -1,0 +1,117 @@
+<div class="container" id="main-content" style="height: 500px;">
+  <div id="chat-header">
+    <h1>Trevor's Chat App</h1>
+    <h3 id="room-name-header"></h3>
+    <a href="/dashboard" class="btn btn-primary">Leave Room</a>
+  </div>
+  <div class="row mt-5" style="height: 100%;">
+    <div class="col w-25">
+      <nav class="sidebar mr-5">
+        <div class="sidebar-header">
+          <h3>Users</h3>
+          <ul id="users" class="list-unstyled components">
+            <li id="current-user"><%= username %></li> 
+          </ul>
+        </div>
+      </nav>
+    </div>
+    <div class="col align-bottom w-75">
+      <div id="chat-messages" class="card bg-light overflow-auto" style="height: 50%;">
+        <ul class="messages overflow-auto"></ul>
+      </div>
+      <div
+        class="chat-form-container mt-5 "
+      >
+        <form id="chat-form">
+            <div class="input-group mb-3">
+              <textarea 
+                class="form-control"
+                aria-label="With textarea"
+                id="msg"
+                type="text"
+                class="form-control"
+                placeholder="Enter Message..."
+                aria-label="Enter Message"
+                aria-describedby="basic-addon2"
+                required
+                autocomplete="off"
+                height="100"
+                >
+              </textarea>
+              <div class="input-group-append">
+              <button class="btn btn-outline-primary" type="submit">Send</button>
+              </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qs/6.9.4/qs.min.js" integrity="sha256-ijqLssetA1NMNjZ+w1zaUafQQLm4IW5OoM8O+4tatME=" crossorigin="anonymous"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const chatForm = document.getElementById('chat-form');
+  const chatMessages = document.getElementById('chat-messages');
+  const userList = document.getElementById('users');
+  const roomHeader = document.getElementById('room-name-header');
+  const currentUserLi = document.getElementById('current-user');
+
+  const { roomname } = Qs.parse(location.search, {
+      ignoreQueryPrefix: true
+  });
+  const username = currentUserLi.innerText;
+
+  roomHeader.innerText = `Room Name: ${roomname}`;
+  socket.emit('joinRoom', { username, roomname });
+
+  socket.on('roomUsers', ({ users }) => {
+      displayUsers(users);
+  });
+
+  socket.on('message', message => {
+      displayMessage(message);
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+  });
+
+  chatForm.addEventListener('submit', submit => {
+      submit.preventDefault();
+      const msg = submit.target.elements.msg.value;
+      socket.emit('chat message', msg);
+      submit.target.elements.msg.value = '';
+      submit.target.elements.msg.focus();
+  });
+
+  const displayMessage = message => {
+      const div = document.createElement('div');
+      div.classList.add('message');
+      div.classList.add('badge');
+      div.classList.add('badge-secondary');
+      div.classList.add('text-left');
+      div.classList.add('text-wrap');
+      div.classList.add('mt-1');
+      div.classList.add('mb-1');
+      div.innerHTML =
+          `
+              <p class="meta">
+                  ${message.user}
+                  <span>${message.time}</span>
+                  <p class="text">
+                  ${message.text}
+                  </p>
+              </p>
+          `;
+      document.getElementById('chat-messages').appendChild(div);
+  };
+
+  const displayRoom = room => {
+      const roomName = document.getElementById('room-name');
+      roomName.innerText = room;
+  };
+
+  const displayUsers = users => {
+      userList.innerHTML = `
+          ${users.map(user => `<li>${user.username}</li>`).join('')}
+      `;
+  };
+</script>
