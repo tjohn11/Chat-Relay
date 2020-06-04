@@ -35,7 +35,7 @@ router.post('/createroom', ensureAuthenticated, (req, res) => {
                                 'success_msg',
                                 `Welcome to ${room.roomname}`
                                 );
-                            res.redirect(`/rooms/:${room.roomname}`);
+                            res.redirect(`/rooms/chatroom`);
                         })
                         .catch(err => {
                             console.log(err);
