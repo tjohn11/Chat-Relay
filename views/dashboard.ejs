@@ -1,0 +1,35 @@
+<div class="container">
+    <div class="row mt-5">
+        <div class="col-md-7 m-auto">
+        <h1 class="mt-4">Trevor's Chat App</h1>
+        <h4>Welcome <%= username %></h4>
+        <a href="/users/logout" class="btn btn-secondary">Logout</a>
+        <div class="card card-body mt-5">
+            <form action="/rooms/chatroom" method="GET">
+                <div class="form-control">
+                    <label for="roomname">Select Room</label>
+                    <select
+                        name="roomname"
+                        id="roomname"
+                    >
+                    <%- include ("./partials/roomlist") %>
+                    </select>
+                </div>
+                <button type="submit" class="mt-4 btn btn-primary btn-block">Join Chat</button>
+            </form>
+            <form class="mt-5" action="/rooms/createroom" method="POST">
+                 <div>
+                    <label for="createroom">Create a new room</label>
+                    <input
+                    type="createroom"
+                    id="createroom"
+                    name="roomname"
+                    class="form-control"
+                    placeholder="Enter new room name..."
+                    />
+                </div>
+                <button type="submit" class="mt-4 btn btn-primary btn-block">Create Room</button>
+            </form>
+        </div>
+    </div>
+</div>

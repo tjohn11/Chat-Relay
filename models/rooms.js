@@ -7,14 +7,9 @@ const roomSchema = new Schema({
       type: String,
       required: true
   },
-  roomid: {
-      type: String,
-      required: true
-  },
-  date: {
+  datecreated: {
     type: Date,
     default: moment(),
-    required: true
   }
 });
 

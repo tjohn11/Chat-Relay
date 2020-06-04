@@ -3,19 +3,18 @@ const router = express.Router();
 const User = require('../models/users');
 const bcrypt = require('bcryptjs');
 const passport = require('passport');
+const { ensureAuthenticated } = require('../config/auth');
 
 router.get('/signup', (req, res) => res.render('signup'));
 
 router.get('/login', (req, res) => res.render('login'));
 
 router.post('/signup', (req, res) => {
-
     let { username, password, passwordConfirm } = req.body;
-
     let errors = [];
 
     if(!username || !password || !passwordConfirm)
-        errors.push({ msg: 'Please complete in all fields' })
+        errors.push({ msg: 'Please complete in all fields' });
     if(password !== passwordConfirm)
         errors.push({ msg: 'Passwords must match' });
 
@@ -27,7 +26,6 @@ router.post('/signup', (req, res) => {
         passwordConfirm  
     });
     } else {
-        console.log("username: ", username)
         User.findOne({ username: username })
             .then(user => {
                 if(user) {
@@ -67,7 +65,7 @@ router.post('/signup', (req, res) => {
 
 router.post('/login', (req, res, next) => {
     passport.authenticate('local', {
-        successRedirect: '/chat',
+        successRedirect: '/dashboard',
         failureRedirect: '/users/login',
         failureFlash: true
     })(req, res, next);
@@ -77,15 +75,6 @@ router.get('/logout', (req, res) => {
     req.logout();
     req.flash('success_msg', 'Logout Successful');
     res.redirect('/users/login');
-});
-
-router.get('/:userId', async (req, res) => {
-    try{
-        const existingUser = await User.findById(req.params.userId);
-        res.json(existingUser);
-    } catch(err) {
-        res.json({ error: `current user error '${err}'` });
-    }
 });
 
 module.exports = router;

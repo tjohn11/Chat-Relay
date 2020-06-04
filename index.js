@@ -11,6 +11,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const routes = require('./routes/index');
 const userRoutes = require('./routes/users');
+const roomRoutes = require('./routes/rooms');
 require('dotenv/config');
 const userModel = require('./models/users');
 const roomModel = require('./models/rooms');
@@ -20,6 +21,7 @@ const session = require('express-session');
 const passport = require('passport')
 
 const app = express();
+app.use(express.static(__dirname + '/public/js'));
 require('./config/passport')(passport);
 
 app.use(express.urlencoded({ extended: false }));
@@ -51,6 +53,7 @@ app.use((req, res, next) => {
     next();
 });
 app.use('/', routes);
+app.use('/rooms', roomRoutes);
 app.use('/users', userRoutes);
 
 const admin = "T-bot";
@@ -63,23 +66,18 @@ const server = app.listen(port);
 const io = socketIO(server);
 io.on('connection', socket => {
 
-    socket.on('roomList', ({ room }) => {
-        socket.emit('roomList', roomList);
-    });
+    console.log('connected to ws');
+    socket.emit('message', format(admin, 'Welcome to the chat'));
 
-    socket.on('joinRoom', ({ username, room }) => {
-        const newUser = joinRoom(socket.id, username, room);
-
-        socket.joinRoom(newUser.room);
-
-        socket.emit('message', format(admin, 'Welcome to the chat'));
+    socket.on('joinRoom', ({ username, roomname }) => {
+        const newUser = joinRoom(socket.id, username, roomname);
+        socket.join(newUser.room);
 
         socket.broadcast
             .to(newUser.room)
             .emit('message', format(admin, `${newUser.username} has joined the chat`));
 
         io.to(newUser.room).emit('roomUsers', {
-            room: newUser.room,
             users: currentRoomUsers(newUser.room)
         });
     });
